@@ -3,6 +3,7 @@ from colorama import Fore, Style, init
 import json
 from pprint import pprint
 from traceback import print_exc
+# import click
 
 init()
 
@@ -61,10 +62,11 @@ def test_GetScores():
     print("Performing 'Getscores' API call test:")
     response = server.app.GetScores()
     try:
-        assert "Morgan" in response['result']
-        assert '5' in response['result']
-        assert "error" not in response
-        score_data = json.load(response['result'])
+        assert "Morgan" in str(response['result'])
+        assert '5' in str(response['result'])
+        assert "error" not in str(response['result'])
+        score_data = json.loads(response['result'])
+        print("Scores:")
         pprint(score_data)
         print(f'{Fore.GREEN}GetScores test passed{Style.RESET_ALL}')
     except:
@@ -73,10 +75,8 @@ def test_GetScores():
         failed_tests = True
         print_exc()
     finally:
-        print('Response:', response, '\n')
+        print('Raw Response:', response, '\n')
     
-
-
 if __name__ == "__main__":
     test_index()
     test_hello()

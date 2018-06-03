@@ -49,7 +49,9 @@ def GetScores():
         print(scores[0]['score'])
         print(scores[0]['name'])
         print(json.dumps(scores))
-        return scores
+        print(type(scores))
+        print(type(json.dumps(scores)))
+        return json.dumps(scores)
     except:
         print_exc()
         raise ValueError

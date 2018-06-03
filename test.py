@@ -3,7 +3,14 @@ from colorama import Fore, Style, init
 import json
 from pprint import pprint
 from traceback import print_exc
-# import click
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--AddScore", help="Add Score to Leaderboard only", action="store_true")
+parser.add_argument("Name", type=str, help="Name of player whose score you wish to add")
+parser.add_argument("Score", type=int, help="Score of player whose score you wish to add")
+
+args = parser.parse_args()
 
 init()
 
@@ -77,10 +84,15 @@ def test_GetScores():
     finally:
         print('Raw Response:', response, '\n')
     
+
+
 if __name__ == "__main__":
-    test_index()
-    test_hello()
-    test_AddScore()
-    test_GetScores()
-    if failed_tests == False:
-        print(f'{Fore.GREEN} ALL TESTS PASSED!{Style.RESET_ALL}')
+    if args.AddScore:
+        test_AddScore(args.name, args.score)
+    else:
+        test_index()
+        test_hello()
+        test_AddScore()
+        test_GetScores()
+        if failed_tests == False:
+            print(f'{Fore.GREEN} ALL TESTS PASSED!{Style.RESET_ALL}')

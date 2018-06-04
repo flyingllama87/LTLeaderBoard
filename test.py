@@ -6,11 +6,14 @@ from traceback import print_exc
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--AddScore", nargs=2, metavar="NAME SCORE", help="Add Score to Leaderboard only", dest="score")
-# parser.add_argument("Name", type=str, help="Name of player whose score you wish to add")
-# parser.add_argument("Score", type=int, help="Score of player whose score you wish to add")
+parser.add_argument("--AddScore", nargs=2, metavar=('NAME', 'SCORE'), help="Add Score to Leaderboard only", dest="score")
 
 args = parser.parse_args()
+
+try:
+    args.score[1] = int(args.score[1])
+except ValueError:
+    parser.error("SCORE must be a number")
 
 init()
 

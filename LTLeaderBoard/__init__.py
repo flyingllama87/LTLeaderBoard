@@ -26,10 +26,18 @@ def AddScore(name="Player", score=1):
     try:
         score = abs(int(score))
         db_connection = db.get_db()
-        db_connection.execute('INSERT INTO scores (name, score) VALUES (?, ?)',
-        (name, score))
-        db_connection.commit()
-        return "Score added"
+        previous_score = db_connection.execute('SELECT * FROM scores WHERE name = ?', (name, )).fetchone()
+        if previous_score:
+            db_connection.execute('UPDATE scores SET name = ?, score = ? WHERE name = ?', (name, score, name))
+            db_connection.commit()
+            print("Score updated by client.")
+            return "Score updated"
+        else:
+            db_connection.execute('INSERT INTO scores (name, score) VALUES (?, ?)',
+            (name, score))
+            db_connection.commit()
+            print("Score added by client.")
+            return "Score added"
     except:
         print_exc()
         raise ValueError
@@ -47,11 +55,7 @@ def GetScores():
             score['name'] = row['name']
             score['score'] = row['score']
             scores.append(score)
-        print(scores[0]['score'])
-        print(scores[0]['name'])
-        print(json.dumps(scores))
-        print(type(scores))
-        print(type(json.dumps(scores)))
+        print("Received request to get scores")
         return json.dumps(scores)
     except:
         print_exc()

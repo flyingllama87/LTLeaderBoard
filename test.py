@@ -10,10 +10,11 @@ parser.add_argument("--AddScore", nargs=2, metavar=('NAME', 'SCORE'), help="Add 
 
 args = parser.parse_args()
 
-try:
-    args.score[1] = int(args.score[1])
-except ValueError:
-    parser.error("SCORE must be a number")
+if args.score:
+    try:
+        args.score[1] = int(args.score[1])
+    except ValueError:
+        parser.error("SCORE must be a number")
 
 init()
 
@@ -56,7 +57,7 @@ def test_AddScore(name = 'Morgan', score = 5):
     print("Performing 'AddScore' API call test:")
     response = server.app.AddScore(name, score)
     try:
-        assert "Score added" in response['result']
+        assert "Score added" or "Score updated" in response['result']
         assert "error" not in response
         print(f'{Fore.GREEN}AddScore test passed{Style.RESET_ALL}')
     except:
@@ -68,15 +69,30 @@ def test_AddScore(name = 'Morgan', score = 5):
         print('Response:', response, '\n')
     
 
+def test_UpdateScore(name = 'Morgan', score = 6):
+    print("Performing 'UpdateScore' API call test:")
+    response = server.app.AddScore(name, score)
+    try:
+        assert "Score updated" in response['result']
+        assert "error" not in response
+        print(f'{Fore.GREEN}UpdateScore test passed{Style.RESET_ALL}')
+    except:
+        print(f'{Fore.RED}UpdateScore test failed{Style.RESET_ALL}')
+        global failed_tests
+        failed_tests = True
+        print_exc()
+    finally:
+        print('Response:', response, '\n')
+
 def test_AddScoreInvalidData(name = 'Player', score = 'PlayerScore'):
     print("Performing 'AddScore' API call test with invalid data:")
     response = server.app.AddScore(name, score)
     try:
         assert "Score added" not in response
         assert "error" in response
-        print(f'{Fore.GREEN}AddScore test passed{Style.RESET_ALL}')
+        print(f'{Fore.GREEN}AddScore with invalid data test passed{Style.RESET_ALL}')
     except:
-        print(f'{Fore.RED}AddScore test failed{Style.RESET_ALL}')
+        print(f'{Fore.RED}AddScore with invalid data test failed{Style.RESET_ALL}')
         global failed_tests
         failed_tests = True
         print_exc()
@@ -88,7 +104,7 @@ def test_GetScores():
     response = server.app.GetScores()
     try:
         assert "Morgan" in str(response['result'])
-        assert '5' in str(response['result'])
+        assert '6' in str(response['result'])
         assert "error" not in str(response['result'])
         score_data = json.loads(response['result'])
         print("Scores:")
@@ -112,6 +128,7 @@ if __name__ == "__main__":
         test_hello()
         test_AddScore()
         test_AddScoreInvalidData()
+        test_UpdateScore()
         test_GetScores()
         if failed_tests == False:
-            print(f'{Fore.GREEN} ALL TESTS PASSED!{Style.RESET_ALL}')
+            print(f'{Fore.GREEN}ALL TESTS PASSED!{Style.RESET_ALL}')

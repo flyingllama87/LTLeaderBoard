@@ -24,6 +24,7 @@ def hello(name="world"):
 @jsonrpc.method('app.AddScore')
 def AddScore(name="Player", score=1):
     try:
+        score = int(score)
         db_connection = db.get_db()
         db_connection.execute('INSERT INTO scores (name, score) VALUES (?, ?)',
         (name, score))

@@ -69,7 +69,7 @@ def test_AddScoreInvalidData(name = 'Player', score = 'PlayerScore'):
     print("Performing 'AddScore' API call test with invalid data:")
     response = server.app.AddScore(name, score)
     try:
-        assert "Score added" not in response['result']
+        assert "Score added" not in response
         assert "error" in response
         print(f'{Fore.GREEN}AddScore test passed{Style.RESET_ALL}')
     except:

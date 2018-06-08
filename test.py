@@ -4,7 +4,9 @@ import json
 from pprint import pprint
 from traceback import print_exc
 import argparse
+import sys
 
+# Parse cmdline args
 parser = argparse.ArgumentParser()
 parser.add_argument("--AddScore", nargs=2, metavar=('NAME', 'SCORE'), help="Add Score to Leaderboard only", dest="score")
 
@@ -16,41 +18,28 @@ if args.score:
     except ValueError:
         parser.error("SCORE must be a number")
 
-init()
+init() #init colorama
 
+#Initialise JSON-RPC endpoint
 server = ServiceProxy('http://127.0.0.1:5000/api')
 
 failed_tests = False
 
 def test_index():
-    print("Performing 'index' API call test:")
-    response = server.app.index()
+    print("Performing 'index' API call test.  Ensure's basic API connectivity:")
     try:
+        response = server.app.index()
         assert "Welcome" in response['result']
         assert "error" not in response
         print(f'{Fore.GREEN}index test passed{Style.RESET_ALL}')
     except:
-        print(f'{Fore.RED}index test failed{Style.RESET_ALL}')
+        print(f'{Fore.RED}index test failed.  Fundamental problem with API server exists.  Exiting...{Style.RESET_ALL}')
         global failed_tests
         failed_tests = True
         print_exc()
     finally:
-        print('Response:', response, '\n')
-    
-
-def test_hello():
-    print("Performing 'hello world' API call test:")
-    response = server.app.hello('Morgan')
-    try:
-        assert "Hello, Morgan" in response['result']
-        assert "error" not in response
-        print(f'{Fore.GREEN}hello world test passed{Style.RESET_ALL}')
-    except:
-        print(f'{Fore.RED}hello world test failed{Style.RESET_ALL}')
-        global failed_tests
-        failed_tests = True
-        print_exc()
-    finally:
+        if failed_tests == True:
+            sys.exit()
         print('Response:', response, '\n')
 
 def test_AddScore(name = 'Morgan', score = 5):
@@ -67,7 +56,6 @@ def test_AddScore(name = 'Morgan', score = 5):
         print_exc()
     finally:
         print('Response:', response, '\n')
-    
 
 def test_UpdateScore(name = 'Morgan', score = 6):
     print("Performing 'UpdateScore' API call test:")
@@ -85,7 +73,7 @@ def test_UpdateScore(name = 'Morgan', score = 6):
         print('Response:', response, '\n')
 
 def test_AddScoreInvalidData(name = 'Player', score = 'PlayerScore'):
-    print("Performing 'AddScore' API call test with invalid data:")
+    print("Performing 'AddScore' API call test with invalid data.  Server should error:")
     response = server.app.AddScore(name, score)
     try:
         assert "Score added" not in response
@@ -93,6 +81,21 @@ def test_AddScoreInvalidData(name = 'Player', score = 'PlayerScore'):
         print(f'{Fore.GREEN}AddScore with invalid data test passed{Style.RESET_ALL}')
     except:
         print(f'{Fore.RED}AddScore with invalid data test failed{Style.RESET_ALL}')
+        global failed_tests
+        failed_tests = True
+        print_exc()
+    finally:
+        print('Response:', response, '\n')
+
+def test_UpdateScoreWithLowerValue(name = 'Morgan', score = '4'):
+    print("Performing 'AddScore' API call test with lower 'score' value than existing record. Server should not update the score.:")
+    response = server.app.AddScore(name, score)
+    try:
+        assert "Submitted score lower than existing value" in response
+        assert "error" not in response # This should not cause an error as the score is value, just does not warrant an update.
+        print(f'{Fore.GREEN}AddScore call with low score value test passed{Style.RESET_ALL}')
+    except:
+        print(f'{Fore.RED}AddScore call with low score value test failed{Style.RESET_ALL}')
         global failed_tests
         failed_tests = True
         print_exc()
@@ -119,16 +122,15 @@ def test_GetScores():
         print('Raw Response:', response, '\n')
     
 
-
 if __name__ == "__main__":
     if args.score:
         test_AddScore(args.score[0], args.score[1])
     else:
         test_index()
-        test_hello()
         test_AddScore()
         test_AddScoreInvalidData()
         test_UpdateScore()
+        test_UpdateScoreWithLowerValue()
         test_GetScores()
         if failed_tests == False:
             print(f'{Fore.GREEN}ALL TESTS PASSED!{Style.RESET_ALL}')

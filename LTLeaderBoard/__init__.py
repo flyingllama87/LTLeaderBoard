@@ -17,10 +17,6 @@ db.init_app(app)
 def index():
     return u'Welcome to flask JSON-RPC!'
 
-@jsonrpc.method('app.hello')
-def hello(name="world"):
-    return "Hello, %s!" % name
-
 @jsonrpc.method('app.AddScore')
 def AddScore(name="Player", score=1):
     try:

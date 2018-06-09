@@ -1,20 +1,20 @@
 from flask_jsonrpc.proxy import ServiceProxy
 from colorama import Fore, Style, init
-import json
 from pprint import pprint
 from traceback import print_exc
-import argparse
-import sys
+
+import json, argparse, sys, random, string
 
 # Parse cmdline args
 parser = argparse.ArgumentParser()
-parser.add_argument("--AddScore", nargs=2, metavar=('NAME', 'SCORE'), help="Add Score to Leaderboard only", dest="score")
+parser.add_argument("--AddScore", nargs=2, metavar=('NAME', 'SCORE'), help="Add Score to Leaderboard only", dest="AddScore")
+parser.add_argument("--GetScores", help="Get leaderboard scores only", action='store_true', dest="GetScores")
 
 args = parser.parse_args()
 
-if args.score:
+if args.AddScore:
     try:
-        args.score[1] = int(args.score[1])
+        args.AddScore[1] = int(args.AddScore[1])
     except ValueError:
         parser.error("SCORE must be a number")
 
@@ -24,6 +24,9 @@ init() #init colorama
 server = ServiceProxy('http://127.0.0.1:5000/api')
 
 failed_tests = False
+
+def random_generator(size = 6, chars=string.ascii_uppercase):
+    return ''.join(random.choice(chars) for x in range(size))
 
 def test_index():
     print("Performing 'index' API call test.  Ensure's basic API connectivity:")
@@ -47,6 +50,7 @@ def test_AddScore(name = 'Morgan', score = 5):
     response = server.app.AddScore(name, score)
     try:
         assert "Score added" or "Score updated" in response['result']
+        assert "Score not updated" not in response['result']
         assert "error" not in response
         print(f'{Fore.GREEN}AddScore test passed{Style.RESET_ALL}')
     except:
@@ -91,7 +95,7 @@ def test_UpdateScoreWithLowerValue(name = 'Morgan', score = '4'):
     print("Performing 'AddScore' API call test with lower 'score' value than existing record. Server should not update the score.:")
     response = server.app.AddScore(name, score)
     try:
-        assert "Submitted score lower than existing value" in response
+        assert "Score not updated." in response['result']
         assert "error" not in response # This should not cause an error as the score is value, just does not warrant an update.
         print(f'{Fore.GREEN}AddScore call with low score value test passed{Style.RESET_ALL}')
     except:
@@ -123,14 +127,17 @@ def test_GetScores():
     
 
 if __name__ == "__main__":
-    if args.score:
-        test_AddScore(args.score[0], args.score[1])
+    if args.AddScore:
+        test_AddScore(args.AddScore[0], args.AddScore[1])
+    elif args.GetScores:
+        test_GetScores()
     else:
+        random_name = random_generator()
         test_index()
-        test_AddScore()
+        test_AddScore(name = random_name)
         test_AddScoreInvalidData()
-        test_UpdateScore()
-        test_UpdateScoreWithLowerValue()
+        test_UpdateScore(name = random_name)
+        test_UpdateScoreWithLowerValue(name = random_name)
         test_GetScores()
         if failed_tests == False:
             print(f'{Fore.GREEN}ALL TESTS PASSED!{Style.RESET_ALL}')

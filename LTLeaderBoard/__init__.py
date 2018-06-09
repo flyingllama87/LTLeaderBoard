@@ -23,11 +23,14 @@ def AddScore(name="Player", score=1):
         score = abs(int(score))
         db_connection = db.get_db()
         previous_score = db_connection.execute('SELECT * FROM scores WHERE name = ?', (name, )).fetchone()
-        if previous_score:
+        if previous_score and previous_score['score'] < score:
             db_connection.execute('UPDATE scores SET name = ?, score = ? WHERE name = ?', (name, score, name))
             db_connection.commit()
             print("Score updated by client.")
             return "Score updated"
+        elif previous_score and previous_score['score'] >= score:
+            print("Score rejected by server as existing score already exists for player with a higher or equal value")
+            return "Score not updated. Submitted score equal to or lower than existing value."
         else:
             db_connection.execute('INSERT INTO scores (name, score) VALUES (?, ?)',
             (name, score))

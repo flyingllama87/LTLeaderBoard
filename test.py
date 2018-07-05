@@ -106,11 +106,12 @@ def test_UpdateScoreWithLowerValue(name = 'Morgan', score = '4'):
     finally:
         print('Response:', response, '\n')
 
-def test_GetScores():
+def test_GetScores(name = None):
     print("Performing 'Getscores' API call test:")
     response = server.app.GetScores()
     try:
-        assert "Morgan" in str(response['result'])
+        if name != None:
+            assert "name" in str(response['result'])        
         assert '6' in str(response['result'])
         assert "error" not in str(response['result'])
         score_data = json.loads(response['result'])
@@ -138,6 +139,6 @@ if __name__ == "__main__":
         test_AddScoreInvalidData()
         test_UpdateScore(name = random_name)
         test_UpdateScoreWithLowerValue(name = random_name)
-        test_GetScores()
+        test_GetScores(name = random_name)
         if failed_tests == False:
             print(f'{Fore.GREEN}ALL TESTS PASSED!{Style.RESET_ALL}')

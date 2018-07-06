@@ -91,6 +91,21 @@ def test_AddScoreInvalidData(name = 'Player', score = 'PlayerScore'):
     finally:
         print('Response:', response, '\n')
 
+def test_AddScoreInvalidName(name = '', score = '50'):
+    print("Performing 'AddScore' API call test with no name.  Server should reject submission:")
+    response = server.app.AddScore(name, score)
+    try:
+        assert "Score added" not in response
+        assert "error" in response
+        print(f'{Fore.GREEN}AddScore with invalid name test passed{Style.RESET_ALL}')
+    except:
+        print(f'{Fore.RED}AddScore with invalid name test failed{Style.RESET_ALL}')
+        global failed_tests
+        failed_tests = True
+        print_exc()
+    finally:
+        print('Response:', response, '\n')
+
 def test_UpdateScoreWithLowerValue(name = 'Morgan', score = '4'):
     print("Performing 'AddScore' API call test with lower 'score' value than existing record. Server should not update the score.:")
     response = server.app.AddScore(name, score)
@@ -137,6 +152,7 @@ if __name__ == "__main__":
         test_index()
         test_AddScore(name = random_name)
         test_AddScoreInvalidData()
+        test_AddScoreInvalidName()
         test_UpdateScore(name = random_name)
         test_UpdateScoreWithLowerValue(name = random_name)
         test_GetScores(name = random_name)

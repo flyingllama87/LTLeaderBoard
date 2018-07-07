@@ -126,8 +126,9 @@ def test_GetScores(name = None):
     response = server.app.GetScores()
     try:
         if name != None:
-            assert "name" in str(response['result'])        
-        assert '6' in str(response['result'])
+            assert "name" in str(response['result'])     
+        if not args.GetScores:   # Only perform the following check if we are performing all tests.
+            assert '6' in str(response['result'])
         assert "error" not in str(response['result'])
         score_data = json.loads(response['result'])
         print("Scores:")

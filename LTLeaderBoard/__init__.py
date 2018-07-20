@@ -18,7 +18,7 @@ def index():
     return u'Welcome to flask JSON-RPC!'
 
 @jsonrpc.method('app.AddScore')
-def AddScore(name="Player", score=1, difficulty="EASY"):
+def AddScore(name="Player", score=1, difficulty="Easy"):
     try:
         score = abs(int(score))
         db_connection = db.get_db()

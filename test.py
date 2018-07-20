@@ -13,8 +13,8 @@ parser.add_argument("--GetScores", help="Get leaderboard scores only", action='s
 args = parser.parse_args()
 
 if args.AddScore:
-    if not (args.AddScore[2] == "EASY" or args.AddScore[2] == "MEDIUM" or args.AddScore[2] == "HARD"):
-        parser.error("DIFFICULTY must be either EASY, MEDIUM or HARD")
+    if not (args.AddScore[2] == "Easy" or args.AddScore[2] == "Medium" or args.AddScore[2] == "Hard"):
+        parser.error("DIFFICULTY must be either Easy, Medium or Hard")
     try:
         args.AddScore[1] = int(args.AddScore[1])
     except ValueError:
@@ -49,7 +49,7 @@ def test_index():
             sys.exit()
         print('Response:', response, '\n')
 
-def test_AddScore(name = 'Morgan', score = 5, difficulty = "EASY"):
+def test_AddScore(name = 'Morgan', score = 5, difficulty = "Easy"):
     print("Performing 'AddScore' API call test:")
     response = server.app.AddScore(name, score, difficulty)
     try:
@@ -65,7 +65,7 @@ def test_AddScore(name = 'Morgan', score = 5, difficulty = "EASY"):
     finally:
         print('Response:', response, '\n')
 
-def test_UpdateScore(name = 'Morgan', score = 6, difficulty = "EASY"):
+def test_UpdateScore(name = 'Morgan', score = 6, difficulty = "Easy"):
     print("Performing 'UpdateScore' API call test:")
     response = server.app.AddScore(name, score, difficulty)
     try:
@@ -80,7 +80,7 @@ def test_UpdateScore(name = 'Morgan', score = 6, difficulty = "EASY"):
     finally:
         print('Response:', response, '\n')
 
-def test_AddScoreInvalidData(name = 'Player', score = 'PlayerScore', difficulty = "EASY"):
+def test_AddScoreInvalidData(name = 'Player', score = 'PlayerScore', difficulty = "Easy"):
     print("Performing 'AddScore' API call test with invalid data.  Server should error:")
     response = server.app.AddScore(name, score, difficulty)
     try:
@@ -95,7 +95,7 @@ def test_AddScoreInvalidData(name = 'Player', score = 'PlayerScore', difficulty 
     finally:
         print('Response:', response, '\n')
 
-def test_AddScoreInvalidDifficulty(name = 'Player', score = 'PlayerScore', difficulty = "VERYEASY"):
+def test_AddScoreInvalidDifficulty(name = 'Player', score = 'PlayerScore', difficulty = "VERYEasy"):
     print("Performing 'AddScore' API call test with invalid difficulty.  Server should error:")
     response = server.app.AddScore(name, score, difficulty)
     try:
@@ -110,7 +110,7 @@ def test_AddScoreInvalidDifficulty(name = 'Player', score = 'PlayerScore', diffi
     finally:
         print('Response:', response, '\n')
 
-def test_AddScoreInvalidName(name = '', score = '50', difficulty = "EASY"):
+def test_AddScoreInvalidName(name = '', score = '50', difficulty = "Easy"):
     print("Performing 'AddScore' API call test with no name.  Server should reject submission:")
     response = server.app.AddScore(name, score, difficulty)
     try:
@@ -125,7 +125,7 @@ def test_AddScoreInvalidName(name = '', score = '50', difficulty = "EASY"):
     finally:
         print('Response:', response, '\n')
 
-def test_UpdateScoreWithLowerValue(name = 'Morgan', score = '4', difficulty = "EASY"):
+def test_UpdateScoreWithLowerValue(name = 'Morgan', score = '4', difficulty = "Easy"):
     print("Performing 'AddScore' API call test with lower 'score' value than existing record. Server should not update the score.:")
     response = server.app.AddScore(name, score, difficulty)
     try:
@@ -178,11 +178,11 @@ if __name__ == "__main__":
         test_UpdateScoreWithLowerValue(name = random_name)
         #Run tests again but with specified / different difficulty
         random_name = random_generator()
-        test_AddScore(name = random_name, difficulty = "MEDIUM")
-        test_AddScoreInvalidData(difficulty = "MEDIUM")
-        test_AddScoreInvalidName(difficulty = "MEDIUM")
-        test_UpdateScore(name = random_name, difficulty = "MEDIUM")
-        test_UpdateScoreWithLowerValue(name = random_name, difficulty = "MEDIUM")
+        test_AddScore(name = random_name, difficulty = "Medium")
+        test_AddScoreInvalidData(difficulty = "Medium")
+        test_AddScoreInvalidName(difficulty = "Medium")
+        test_UpdateScore(name = random_name, difficulty = "Medium")
+        test_UpdateScoreWithLowerValue(name = random_name, difficulty = "Medium")
         test_GetScores(name = random_name)
 
         if failed_tests == False:

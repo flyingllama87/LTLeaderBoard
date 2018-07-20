@@ -7,21 +7,27 @@ import json, argparse, sys, random, string
 
 # Parse cmdline args
 parser = argparse.ArgumentParser()
-parser.add_argument("--AddScore", nargs=2, metavar=('NAME', 'SCORE'), help="Add Score to Leaderboard only", dest="AddScore")
+parser.add_argument("--AddScore", nargs=3, metavar=('NAME', 'SCORE', 'DIFFICULTY'), help="Add Score to Leaderboard only", dest="AddScore")
 parser.add_argument("--GetScores", help="Get leaderboard scores only", action='store_true', dest="GetScores")
 
 args = parser.parse_args()
 
 if args.AddScore:
+    if args.AddScore[3] not "EASY" or args.AddScore[3] not "MEDIUM" or args.AddScore[3] not "HARD":
+        parser.error("DIFFICULTY must be either EASY, MEDIUM or HARD")
     try:
         args.AddScore[1] = int(args.AddScore[1])
     except ValueError:
         parser.error("SCORE must be a number")
 
+    
+
+
 init() #init colorama
 
 #Initialise JSON-RPC endpoint
-server = ServiceProxy('http://127.0.0.1:5000/api')
+# server = ServiceProxy('http://morganrobertson.net/LTLeaderBoard/api')
+server = ServiceProxy('http://127.0.0.1:5000')
 
 failed_tests = False
 
@@ -45,9 +51,9 @@ def test_index():
             sys.exit()
         print('Response:', response, '\n')
 
-def test_AddScore(name = 'Morgan', score = 5):
+def test_AddScore(name = 'Morgan', score = 5, difficulty = "EASY"):
     print("Performing 'AddScore' API call test:")
-    response = server.app.AddScore(name, score)
+    response = server.app.AddScore(name, score, difficulty)
     try:
         assert "Score added" or "Score updated" in response['result']
         assert "Score not updated" not in response['result']
@@ -61,7 +67,7 @@ def test_AddScore(name = 'Morgan', score = 5):
     finally:
         print('Response:', response, '\n')
 
-def test_UpdateScore(name = 'Morgan', score = 6):
+def test_UpdateScore(name = 'Morgan', score = 6, difficulty = "EASY"):
     print("Performing 'UpdateScore' API call test:")
     response = server.app.AddScore(name, score)
     try:
@@ -76,7 +82,7 @@ def test_UpdateScore(name = 'Morgan', score = 6):
     finally:
         print('Response:', response, '\n')
 
-def test_AddScoreInvalidData(name = 'Player', score = 'PlayerScore'):
+def test_AddScoreInvalidData(name = 'Player', score = 'PlayerScore', difficulty = "EASY"):
     print("Performing 'AddScore' API call test with invalid data.  Server should error:")
     response = server.app.AddScore(name, score)
     try:
@@ -91,7 +97,7 @@ def test_AddScoreInvalidData(name = 'Player', score = 'PlayerScore'):
     finally:
         print('Response:', response, '\n')
 
-def test_AddScoreInvalidName(name = '', score = '50'):
+def test_AddScoreInvalidName(name = '', score = '50', difficulty = "EASY"):
     print("Performing 'AddScore' API call test with no name.  Server should reject submission:")
     response = server.app.AddScore(name, score)
     try:
@@ -106,7 +112,7 @@ def test_AddScoreInvalidName(name = '', score = '50'):
     finally:
         print('Response:', response, '\n')
 
-def test_UpdateScoreWithLowerValue(name = 'Morgan', score = '4'):
+def test_UpdateScoreWithLowerValue(name = 'Morgan', score = '4', difficulty = "EASY"):
     print("Performing 'AddScore' API call test with lower 'score' value than existing record. Server should not update the score.:")
     response = server.app.AddScore(name, score)
     try:
@@ -145,7 +151,7 @@ def test_GetScores(name = None):
 
 if __name__ == "__main__":
     if args.AddScore:
-        test_AddScore(args.AddScore[0], args.AddScore[1])
+        test_AddScore(args.AddScore[0], args.AddScore[1], args.AddScore[3])
     elif args.GetScores:
         test_GetScores()
     else:
@@ -156,6 +162,14 @@ if __name__ == "__main__":
         test_AddScoreInvalidName()
         test_UpdateScore(name = random_name)
         test_UpdateScoreWithLowerValue(name = random_name)
+        #Run tests again but with specified / different difficulty
+        random_name = random_generator()
+        test_AddScore(name = random_name, difficulty = "MEDIUM")
+        test_AddScoreInvalidData(difficulty = "MEDIUM")
+        test_AddScoreInvalidName(difficulty = "MEDIUM")
+        test_UpdateScore(name = random_name, difficulty = "MEDIUM")
+        test_UpdateScoreWithLowerValue(name = random_name, difficulty = "MEDIUM")
         test_GetScores(name = random_name)
+        
         if failed_tests == False:
             print(f'{Fore.GREEN}ALL TESTS PASSED!{Style.RESET_ALL}')

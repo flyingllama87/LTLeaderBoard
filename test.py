@@ -13,7 +13,7 @@ parser.add_argument("--GetScores", help="Get leaderboard scores only", action='s
 args = parser.parse_args()
 
 if args.AddScore:
-    if args.AddScore[3] != "EASY" or args.AddScore[3] != "MEDIUM" or args.AddScore[3] != "HARD":
+    if not (args.AddScore[2] == "EASY" or args.AddScore[2] == "MEDIUM" or args.AddScore[2] == "HARD"):
         parser.error("DIFFICULTY must be either EASY, MEDIUM or HARD")
     try:
         args.AddScore[1] = int(args.AddScore[1])
@@ -21,8 +21,6 @@ if args.AddScore:
         parser.error("SCORE must be a number")
 
     
-
-
 init() #init colorama
 
 #Initialise JSON-RPC endpoint
@@ -69,7 +67,7 @@ def test_AddScore(name = 'Morgan', score = 5, difficulty = "EASY"):
 
 def test_UpdateScore(name = 'Morgan', score = 6, difficulty = "EASY"):
     print("Performing 'UpdateScore' API call test:")
-    response = server.app.AddScore(name, score)
+    response = server.app.AddScore(name, score, difficulty)
     try:
         assert "Score updated" in response['result']
         assert "error" not in response
@@ -84,7 +82,7 @@ def test_UpdateScore(name = 'Morgan', score = 6, difficulty = "EASY"):
 
 def test_AddScoreInvalidData(name = 'Player', score = 'PlayerScore', difficulty = "EASY"):
     print("Performing 'AddScore' API call test with invalid data.  Server should error:")
-    response = server.app.AddScore(name, score)
+    response = server.app.AddScore(name, score, difficulty)
     try:
         assert "Score added" not in response
         assert "error" in response
@@ -99,7 +97,7 @@ def test_AddScoreInvalidData(name = 'Player', score = 'PlayerScore', difficulty 
 
 def test_AddScoreInvalidDifficulty(name = 'Player', score = 'PlayerScore', difficulty = "VERYEASY"):
     print("Performing 'AddScore' API call test with invalid difficulty.  Server should error:")
-    response = server.app.AddScore(name, score)
+    response = server.app.AddScore(name, score, difficulty)
     try:
         assert "Score added" not in response
         assert "error" in response
@@ -114,7 +112,7 @@ def test_AddScoreInvalidDifficulty(name = 'Player', score = 'PlayerScore', diffi
 
 def test_AddScoreInvalidName(name = '', score = '50', difficulty = "EASY"):
     print("Performing 'AddScore' API call test with no name.  Server should reject submission:")
-    response = server.app.AddScore(name, score)
+    response = server.app.AddScore(name, score, difficulty)
     try:
         assert "Score added" not in response
         assert "error" in response
@@ -129,7 +127,7 @@ def test_AddScoreInvalidName(name = '', score = '50', difficulty = "EASY"):
 
 def test_UpdateScoreWithLowerValue(name = 'Morgan', score = '4', difficulty = "EASY"):
     print("Performing 'AddScore' API call test with lower 'score' value than existing record. Server should not update the score.:")
-    response = server.app.AddScore(name, score)
+    response = server.app.AddScore(name, score, difficulty)
     try:
         assert "Score not updated." in response['result']
         assert "error" not in response # This should not cause an error as the score is value, just does not warrant an update.
@@ -166,7 +164,7 @@ def test_GetScores(name = None):
 
 if __name__ == "__main__":
     if args.AddScore:
-        test_AddScore(args.AddScore[0], args.AddScore[1], args.AddScore[3])
+        test_AddScore(args.AddScore[0], args.AddScore[1], args.AddScore[2])
     elif args.GetScores:
         test_GetScores()
     else:

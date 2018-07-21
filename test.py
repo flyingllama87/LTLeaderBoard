@@ -3,7 +3,7 @@ from colorama import Fore, Style, init
 from pprint import pprint
 from traceback import print_exc
 
-import json, argparse, sys, random, string
+import json, argparse, sys, random, string, time
 
 # Parse cmdline args
 parser = argparse.ArgumentParser()
@@ -24,18 +24,22 @@ if args.AddScore:
 init() #init colorama
 
 #Initialise JSON-RPC endpoint
-# server = ServiceProxy('http://morganrobertson.net/LTLeaderBoard/api')
-server = ServiceProxy('http://127.0.0.1:5000/api')
+
+server = ServiceProxy('http://morganrobertson.net/LTLeaderBoard/api')
+# server = ServiceProxy('http://127.0.0.1:5000/api')
 
 failed_tests = False
 
 def random_generator(size = 6, chars=string.ascii_uppercase):
     return ''.join(random.choice(chars) for x in range(size))
 
-def test_index():
+def test_index(): # Establish basic call to API endpoint and time the connection.
     print("Performing 'index' API call test.  Ensure's basic API connectivity:")
     try:
+        startTime = time.time()
         response = server.app.index()
+        endTime = time.time()
+        print('index call took {:.3f} ms'.format((endTime-startTime)*1000.0))
         assert "Welcome" in response['result']
         assert "error" not in response
         print(f'{Fore.GREEN}index test passed{Style.RESET_ALL}')
@@ -140,9 +144,12 @@ def test_UpdateScoreWithLowerValue(name = 'Morgan', score = '4', difficulty = "E
     finally:
         print('Response:', response, '\n')
 
-def test_GetScores(name = None):
+def test_GetScores(name = None): # GetScores and measure the time it takes
     print("Performing 'Getscores' API call test:")
+    startTime = time.time()
     response = server.app.GetScores()
+    endTime = time.time()
+    print('GetScores call took {:.3f} ms'.format((endTime-startTime)*1000.0))
     try:
         if name != None:
             assert "name" in str(response['result'])     
